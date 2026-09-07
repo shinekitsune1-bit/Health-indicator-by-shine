@@ -1,7 +1,7 @@
 package com.healthindicator;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityWorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,7 +15,7 @@ public class HealthIndicatorClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        EntityWorldRenderEvents.AFTER_ENTITIES.register(context -> {
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 
             MinecraftClient client = MinecraftClient.getInstance();
 
@@ -29,9 +29,8 @@ public class HealthIndicatorClient implements ClientModInitializer {
             for (LivingEntity entity : client.world.getEntitiesByClass(
                     LivingEntity.class,
                     client.player.getBoundingBox().expand(32),
-                    e -> e != client.player && e.isAlive()
+                    entity -> entity != client.player && entity.isAlive()
             )) {
-
                 renderHealth(client, matrices, consumers, entity);
             }
         });
@@ -53,33 +52,31 @@ public class HealthIndicatorClient implements ClientModInitializer {
 
         float percentage = health / maxHealth;
 
-        String color;
+        int color;
 
         if (percentage > 0.75f) {
-            color = "§a";
+            color = 0xFF55FF55;
         } else if (percentage > 0.50f) {
-            color = "§e";
+            color = 0xFFFFFF55;
         } else if (percentage > 0.25f) {
-            color = "§6";
+            color = 0xFFFFAA00;
         } else {
-            color = "§c";
+            color = 0xFFFF5555;
         }
 
         int hearts = Math.max(1, Math.round(health / 2.0f));
 
-        Text text = Text.literal(
-                color + "❤ " + hearts
-        );
+        Text text = Text.literal("❤ " + hearts);
 
         TextRenderer renderer = client.textRenderer;
 
-        Vec3d camera = client.gameRenderer
+        Vec3d cameraPos = client.gameRenderer
                 .getCamera()
                 .getPos();
 
-        double x = entity.getX() - camera.x;
-        double y = entity.getY() + entity.getHeight() + 0.5 - camera.y;
-        double z = entity.getZ() - camera.z;
+        double x = entity.getX() - cameraPos.x;
+        double y = entity.getY() + entity.getHeight() + 0.5 - cameraPos.y;
+        double z = entity.getZ() - cameraPos.z;
 
         matrices.push();
 
@@ -99,7 +96,7 @@ public class HealthIndicatorClient implements ClientModInitializer {
                 text,
                 -width / 2.0f,
                 0,
-                0xFFFFFFFF,
+                color,
                 true,
                 matrices.peek().getPositionMatrix(),
                 consumers,
@@ -110,4 +107,4 @@ public class HealthIndicatorClient implements ClientModInitializer {
 
         matrices.pop();
     }
-                }
+}
