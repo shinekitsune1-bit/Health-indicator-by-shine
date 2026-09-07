@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "healthindicator",
+  "version": "${version}",
+  "name": "Health Indicator",
+  "description": "Displays a color-changing health indicator above players.",
+  "authors": [
+    "Image Craft"
+  ],
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.healthindicator.HealthIndicatorClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.8",
+    "fabric-api": "*"
+  }
+}
